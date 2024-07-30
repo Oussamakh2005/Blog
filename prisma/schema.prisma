@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//User role : 
+enum UserRole {
+  ADMIN
+  MODERATOR
+  USER
+}
+
+//Report status :
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  INVALID
+}
+
+//User model :
+model User {
+  id            Int             @id @default(autoincrement())
+  name          String
+  email         String          @unique
+  password      String
+  role          UserRole        @default(USER)
+  verfication   Boolean         @default(false)
+  Posts         Post[]
+  PostLikeEvent PostLikeEvent[]
+  comments      Comment[]
+  reports        Report[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+//Post model :
+model Post {
+  id            Int             @id @default(autoincrement())
+  content       String          @db.Text
+  likes         Decimal         @default(0)
+  user_id       Int
+  user          User            @relation(fields: [user_id], references: [id])
+  image         PostImage[]
+  PostLikeEvent PostLikeEvent[]
+  comments      Comment[]
+  reports Report[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+//Post image model :
+model PostImage {
+  id        Int      @id @default(autoincrement())
+  image     String
+  post_id   Int
+  Post      Post     @relation(fields: [post_id], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//Post like event model :
+model PostLikeEvent {
+  id      Int  @id @default(autoincrement())
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+  post_id Int
+  post    Post @relation(fields: [post_id], references: [id])
+}
+
+//Comment model :
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  user_id   Int
+  user      User     @relation(fields: [user_id], references: [id])
+  post_id   Int
+  post      Post     @relation(fields: [post_id], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//Report model :
+model Report {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  status ReportStatus @default(PENDING)
+  user_id   Int
+  user      User     @relation(fields: [user_id], references: [id])
+  post_id   Int
+  post      Post     @relation(fields: [post_id], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
