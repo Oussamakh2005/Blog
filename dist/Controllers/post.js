@@ -99,69 +99,11 @@ class Post {
                     where: {
                         id: +req.params.id
                     },
-                    /* include: {
-                         image: {
-                             select: {
-                                 id: true
-                             }
-                         },
-                         PostLikeEvent: {
-                             select: {
-                                 id: true
-                             }
-                         },
-                         comments: {
-                             select: {
-                                 id: true
-                             }
-                         },
-                         reports : {
-                             select : {
-                                 id : true
-                             }
-                         }
-                     }*/
                 });
                 if (!post) {
                     throw new NotFound_1.NotFound("No post found", root_1.ErrorCode.POST_NOT_FOUND, null);
                 }
                 if ((post === null || post === void 0 ? void 0 : post.user_id) === req.user.id || req.user.role === "ADMIN") {
-                    /* if (post?.image) {
-                         for (const image of post?.image) {
-                             await ts.postImage.delete({
-                                 where: {
-                                     id: image.id
-                                 }
-                             });
-                         }
-                     }
-                     if (post?.comments) {
-                         for (const comment of post?.comments) {
-                             await ts.postImage.delete({
-                                 where: {
-                                     id: comment.id
-                                 }
-                             });
-                         }
-                     }
-                     if (post?.PostLikeEvent) {
-                         for (const like of post?.PostLikeEvent) {
-                             await ts.postImage.delete({
-                                 where: {
-                                     id: like.id
-                                 }
-                             });
-                         }
-                     }
-                     if (post?.reports) {
-                         for (const report of post?.reports) {
-                             await ts.postImage.delete({
-                                 where: {
-                                     id: report.id
-                                 }
-                             });
-                         }
-                     }*/
                     //----Delete post relations---///
                     yield ts.postImage.deleteMany({
                         where: {
