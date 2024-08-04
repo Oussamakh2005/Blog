@@ -8,14 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Post = void 0;
+const fs_1 = __importDefault(require("fs"));
 const post_1 = require("../Validation/post");
 const __1 = require("..");
 const BadRequest_1 = require("../Execeptions/BadRequest");
 const root_1 = require("../Execeptions/root");
 const NotFound_1 = require("../Execeptions/NotFound");
 const Unauthrized_1 = require("../Execeptions/Unauthrized");
+const path_1 = __importDefault(require("path"));
+const InternalException_1 = require("../Execeptions/InternalException");
 class Post {
     static createPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -99,17 +105,32 @@ class Post {
                     where: {
                         id: +req.params.id
                     },
+                    include: {
+                        image: {
+                            select: {
+                                image: true
+                            }
+                        }
+                    }
                 });
                 if (!post) {
                     throw new NotFound_1.NotFound("No post found", root_1.ErrorCode.POST_NOT_FOUND, null);
                 }
                 if ((post === null || post === void 0 ? void 0 : post.user_id) === req.user.id || req.user.role === "ADMIN") {
                     //----Delete post relations---///
-                    yield ts.postImage.deleteMany({
-                        where: {
-                            post_id: post.id
-                        }
-                    });
+                    if (post.image) {
+                        const imagePath = path_1.default.join(__dirname, '../', 'uploads', post.image[0].image);
+                        fs_1.default.unlink(imagePath, (err) => {
+                            if (err) {
+                                throw new InternalException_1.InternalException("Somthing went wrong (faild to delete iamge)", root_1.ErrorCode.INTERNAL_SERVER_ERROR, err);
+                            }
+                        });
+                        yield ts.postImage.deleteMany({
+                            where: {
+                                post_id: post.id
+                            }
+                        });
+                    }
                     yield ts.postLikeEvent.deleteMany({
                         where: {
                             post_id: post.id

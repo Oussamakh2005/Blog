@@ -1,10 +1,13 @@
 import { Response, Request } from "express";
+import  fs from "fs";
 import { AddCommentSchema, CreatePostSchema } from "../Validation/post";
 import { prisma } from "..";
 import { BadRequest } from "../Execeptions/BadRequest";
 import { ErrorCode } from "../Execeptions/root";
 import { NotFound } from "../Execeptions/NotFound";
 import { Unauthrized } from "../Execeptions/Unauthrized";
+import path from "path";
+import { InternalException } from "../Execeptions/InternalException";
 export class Post {
     static async createPost(req: any, res: Response) {
         return await prisma.$transaction(async (ts) => {
@@ -83,6 +86,13 @@ export class Post {
                 where: {
                     id: +req.params.id
                 },
+                include : {
+                    image : {
+                        select : {
+                            image : true
+                        }
+                    }
+                }
             });
             if (!post) {
                 throw new NotFound("No post found", ErrorCode.POST_NOT_FOUND, null);
@@ -90,11 +100,19 @@ export class Post {
             if (post?.user_id === req.user.id || req.user.role === "ADMIN") {
               
                 //----Delete post relations---///
-                await ts.postImage.deleteMany({
-                    where: {
-                        post_id: post.id
-                    }
-                });
+                if(post.image){
+                    const imagePath = path.join(__dirname,'../','uploads',post.image[0].image);
+                    fs.unlink(imagePath,(err : any) => {
+                        if(err){
+                            throw new InternalException("Somthing went wrong (faild to delete iamge)",ErrorCode.INTERNAL_SERVER_ERROR,err);
+                        }
+                    });
+                    await ts.postImage.deleteMany({
+                        where: {
+                            post_id: post.id
+                        }
+                    });
+                }
                 await ts.postLikeEvent.deleteMany({
                     where: {
                         post_id: post.id

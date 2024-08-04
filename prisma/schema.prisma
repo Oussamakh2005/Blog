@@ -29,18 +29,19 @@ enum ReportStatus {
 
 //User model :
 model User {
-  id            Int             @id @default(autoincrement())
-  name          String
-  email         String          @unique
-  password      String
-  role          UserRole        @default(USER)
-  verfication   Boolean         @default(false)
-  Posts         Post[]
-  PostLikeEvent PostLikeEvent[]
-  comments      Comment[]
-  reports        Report[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  email               String               @unique
+  password            String
+  role                UserRole             @default(USER)
+  verfication         Boolean              @default(false)
+  Posts               Post[]
+  PostLikeEvent       PostLikeEvent[]
+  comments            Comment[]
+  reports             Report[]
+  ResetPasswordEvents ResetPasswordEvnet[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 }
 
 //Post model :
@@ -53,7 +54,7 @@ model Post {
   image         PostImage[]
   PostLikeEvent PostLikeEvent[]
   comments      Comment[]
-  reports Report[]
+  reports       Report[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 }
@@ -91,13 +92,23 @@ model Comment {
 
 //Report model :
 model Report {
-  id        Int      @id @default(autoincrement())
-  content   String   @db.Text
-  status ReportStatus @default(PENDING)
+  id        Int          @id @default(autoincrement())
+  content   String       @db.Text
+  status    ReportStatus @default(PENDING)
   user_id   Int
-  user      User     @relation(fields: [user_id], references: [id])
+  user      User         @relation(fields: [user_id], references: [id])
   post_id   Int
-  post      Post     @relation(fields: [post_id], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  post      Post         @relation(fields: [post_id], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+//Reset Password Event model :
+model ResetPasswordEvnet {
+  id           Int      @id @default(autoincrement())
+  verification Boolean  @default(false)
+  user_id      Int
+  User         User     @relation(fields: [user_id], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
