@@ -30,7 +30,7 @@ export class Authintication {
                 //Generate token :
                 const token = Token.generate(newUser.id);
                 //Send verification email :
-                await Email.main(validatedData.email, token)
+                await Email.main(validatedData.email, `http://localhost:3000/api/auth/verification/${token}`)
                     .then(() => {
                         console.log("email sent.");
                         return res.status(201).json({

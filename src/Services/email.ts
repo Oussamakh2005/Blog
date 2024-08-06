@@ -13,12 +13,12 @@ const transporter = nodemailer.createTransport({
 });
 
 export class Email {
-    static async  main(email : string , token : string) {
+    static async  main(email : string , link : string) {
         await transporter.sendMail({
             from : APP_EMAIL,
             to : email,
             subject : "verify account",
-            html : `<p>To verify your account <a href='http://localhost:3000/api/auth/verification/${token}'>click here</a>.</p>`
+            html : `<p>To verify your account <a href='${link}'>click here</a>.</p>`
         });
     }
 }

@@ -27,13 +27,13 @@ const transporter = nodemailer_1.default.createTransport({
     },
 });
 class Email {
-    static main(email, token) {
+    static main(email, link) {
         return __awaiter(this, void 0, void 0, function* () {
             yield transporter.sendMail({
                 from: secrets_1.APP_EMAIL,
                 to: email,
                 subject: "verify account",
-                html: `<p>To verify your account <a href='http://localhost:3000/api/auth/verification/${token}'>click here</a>.</p>`
+                html: `<p>To verify your account <a href='${link}'>click here</a>.</p>`
             });
         });
     }

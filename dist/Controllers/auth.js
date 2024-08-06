@@ -42,7 +42,7 @@ class Authintication {
                     //Generate token :
                     const token = token_1.Token.generate(newUser.id);
                     //Send verification email :
-                    yield email_1.Email.main(validatedData.email, token)
+                    yield email_1.Email.main(validatedData.email, `http://localhost:3000/api/auth/verification/${token}`)
                         .then(() => {
                         console.log("email sent.");
                         return res.status(201).json({
